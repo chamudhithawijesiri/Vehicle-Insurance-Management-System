@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History - Auto Shield Admin</title>
+    <link rel="stylesheet" th:href="@{/css/fontawesome.min.css}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        :root {
+            --bg-color: #0b0f19; --card-bg: rgba(17, 24, 39, 0.7); --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6; --text-secondary: #9ca3af; --primary-color: #00f2fe; --secondary-color: #4facfe;
+            --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --error-color: #ef4444; --success-color: #10b981; --warning-color: #f59e0b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(circle at top, rgba(11,15,25,0.8) 0%, #0b0f19 100%); background-attachment: fixed; background-size: cover; color: var(--text-primary); min-height: 100vh; }
+        header { display:flex; justify-content:center; padding:1.2rem 2rem; border-bottom:1px solid var(--card-border); background: rgba(11,15,25,0.6); backdrop-filter: blur(12px); position: sticky; top:0; z-index:10; }
+        .nav-container { display:flex; justify-content:space-between; align-items:center; width:100%; max-width:1300px; }
+        .logo { font-size:1.4rem; font-weight:800; color:var(--text-primary); text-decoration:none; }
+        .logo span { color: var(--primary-color); }
+        .btn { border:none; border-radius:10px; padding:0.5rem 1rem; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.85rem; }
+        .btn-primary { background: var(--accent-gradient); color:#06202a; }
+        .btn-secondary { background: rgba(255,255,255,0.06); color:var(--text-primary); border:1px solid var(--card-border); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+        main { max-width: 1450px; margin:0 auto; padding: 2.5rem 1.5rem; }
+        h1 span { color: var(--primary-color); }
+        .summary-card { background: var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:1.5rem; margin: 1.5rem 0 2rem; display: inline-flex; flex-direction: column; gap: 0.3rem; }
+        .summary-card .label { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .summary-card .value { font-size: 1.8rem; font-weight: 800; color: var(--primary-color); }
+        table { width:100%; border-collapse: collapse; background: var(--card-bg); border:1px solid var(--card-border); border-radius:16px; overflow:hidden; }
+        th, td { padding: 0.9rem 1.1rem; text-align:left; font-size:0.85rem; border-bottom:1px solid var(--card-border); vertical-align: middle; }
+        th { color: var(--text-secondary); text-transform:uppercase; font-size:0.72rem; letter-spacing:0.05em; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        .badge { padding:0.25rem 0.7rem; border-radius:999px; font-size:0.72rem; font-weight:700; }
+        .badge-completed { background: rgba(16,185,129,0.12); color:var(--success-color); }
+        .badge-pending { background: rgba(245,158,11,0.12); color:var(--warning-color); }
+        .badge-failed { background: rgba(239,68,68,0.12); color:var(--error-color); }
+        .badge-refunded { background: rgba(79,172,254,0.12); color:var(--secondary-color); }
+        select, .status-form { font-family: inherit; }
+        .status-form { display: flex; gap: 0.5rem; align-items: center; min-width: 190px; }
+        .status-form label { color: var(--text-secondary); font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+        .status-form select {
+            appearance: auto;
+            min-width: 105px;
+            background-color: #172033;
+            border: 1px solid rgba(0, 242, 254, 0.45);
+            border-radius: 8px;
+            padding: 0.45rem 0.55rem;
+            color: #f3f4f6;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .status-form select:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        .status-form select option {
+            background-color: #172033;
+            color: #f3f4f6;
+        }
+        [data-theme="light"] .status-form select {
+            background-color: #ffffff;
+            color: #12313a;
+            border-color: rgba(8, 127, 140, 0.45);
+        }
+        [data-theme="light"] .status-form select option {
+            background-color: #ffffff;
+            color: #12313a;
+        }
+        .status-form .btn {
+            white-space: nowrap;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+        }
+        .table-wrapper table {
+            border: none;
+            border-radius: 0;
+            min-width: 1150px;
+        }
+        .empty-state { text-align:center; color:var(--text-secondary); padding:3rem 1rem; }
+    </style>
+    <script src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+<header>
+    <div class="nav-container">
+        <a href="/" class="logo"><i class="fa-solid fa-shield-halved"></i> Auto<span>Shield</span></a>
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Admin Dashboard</a>
+    </div>
+</header>
+
+<main>
+    <h1 style="font-size:1.8rem; font-weight:800;">Payment <span>History</span></h1>
+    <p style="color: var(--text-secondary); margin-top: 0.4rem;">Every payment across every customer.</p>
+
+    <div class="summary-card">
+        <span class="label">Total Revenue (Completed Payments)</span>
+        <span class="value" th:text="${'Rs. ' + #numbers.formatDecimal(totalRevenue, 1, 'COMMA', 2, 'POINT')}">Rs. 0.00</span>
+    </div>
+
+    <div class="table-wrapper">
+    <table>
+        <thead>
+        <tr>
+            <th>Receipt No.</th>
+            <th>Customer</th>
+            <th>Policy No.</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Slip / Reference</th>
+            <th>Paid At</th>
+            <th>Status</th>
+            <th>Update</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${payments}">
+            <td style="font-weight: 600;" th:text="${p.receiptNumber}">AS-RCP-2026-100000</td>
+            <td th:text="${p.policy.vehicle.owner.fullName}">John Doe</td>
+            <td th:text="${p.policy.policyNumber}">AS-1234567-GP</td>
+            <td th:text="${'Rs. ' + #numbers.formatDecimal(p.amount, 1, 'COMMA', 2, 'POINT')}">Rs. 85,000.00</td>
+            <td th:text="${p.paymentMethod}">Credit Card</td>
+            <td>
+                <div th:if="${p.paymentMethod == 'Bank Transfer'}">
+                    <a th:if="${p.paymentSlipData != null and !p.paymentSlipData.isEmpty()}"
+                       th:href="${p.paymentSlipData}" target="_blank" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-receipt"></i> View Slip
+                    </a>
+                    <div th:if="${p.transactionReference != null and !p.transactionReference.isEmpty()}"
+                         style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.3rem;"
+                         th:text="${'Ref: ' + p.transactionReference}">Ref: TXN00123456789</div>
+                </div>
+                <span th:unless="${p.paymentMethod == 'Bank Transfer'}" style="color: var(--text-secondary);">—</span>
+            </td>
+            <td th:text="${#temporals.format(p.paidAt, 'dd MMM yyyy, hh:mm a')}">01 Aug 2026</td>
+            <td><span class="badge" th:classappend="${'badge-' + #strings.toLowerCase(p.status)}" th:text="${p.status}">COMPLETED</span></td>
+            <td>
+                <form th:action="@{/admin/payments/{id}/status(id=${p.id})}" method="POST" class="status-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <label th:for="${'payment-status-' + p.id}">Set status</label>
+                    <select name="status" th:id="${'payment-status-' + p.id}" aria-label="Select payment status">
+                        <option value="COMPLETED" th:selected="${p.status.name() == 'COMPLETED'}">Completed</option>
+                        <option value="PENDING" th:selected="${p.status.name() == 'PENDING'}">Pending</option>
+                        <option value="FAILED" th:selected="${p.status.name() == 'FAILED'}">Failed</option>
+                        <option value="REFUNDED" th:selected="${p.status.name() == 'REFUNDED'}">Refunded</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-check"></i> Save</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${payments == null or #lists.isEmpty(payments)}">
+            <td colspan="9" class="empty-state">No payments recorded yet.</td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+</main>
+</body>
+</html>

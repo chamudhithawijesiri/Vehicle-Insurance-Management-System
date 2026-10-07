@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Packages - Auto Shield Admin</title>
+    <link rel="stylesheet" th:href="@{/css/fontawesome.min.css}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        :root {
+            --bg-color: #0b0f19; --card-bg: rgba(17, 24, 39, 0.7); --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6; --text-secondary: #9ca3af; --primary-color: #00f2fe; --secondary-color: #4facfe;
+            --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --error-color: #ef4444; --success-color: #10b981;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(circle at top, rgba(11,15,25,0.8) 0%, #0b0f19 100%); background-attachment: fixed; background-size: cover; color: var(--text-primary); min-height: 100vh; }
+        header { display:flex; justify-content:center; padding:1.2rem 2rem; border-bottom:1px solid var(--card-border); background: rgba(11,15,25,0.6); backdrop-filter: blur(12px); position: sticky; top:0; z-index:10; }
+        .nav-container { display:flex; justify-content:space-between; align-items:center; width:100%; max-width:1300px; }
+        .logo { font-size:1.4rem; font-weight:800; color:var(--text-primary); text-decoration:none; }
+        .logo span { color: var(--primary-color); }
+        .btn { border:none; border-radius:10px; padding:0.6rem 1.2rem; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:0.5rem; font-size:0.85rem; }
+        .btn-primary { background: var(--accent-gradient); color:#06202a; }
+        .btn-secondary { background: rgba(255,255,255,0.06); color:var(--text-primary); border:1px solid var(--card-border); }
+        .btn-danger { background: rgba(239,68,68,0.12); color: var(--error-color); border:1px solid rgba(239,68,68,0.3); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+        main { max-width: 1300px; margin:0 auto; padding: 2.5rem 1.5rem; }
+        .page-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem; }
+        h1 span { color: var(--primary-color); }
+        .alert-error { background: rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); color: var(--error-color); padding:0.9rem 1.1rem; border-radius:10px; margin-bottom:1.5rem; display:flex; gap:0.6rem; align-items:center; }
+        .plans-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+        .plan-card { background: var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:1.5rem; position:relative; }
+        .plan-card.featured { border-color: var(--primary-color); box-shadow: 0 0 20px rgba(0,242,254,0.15); }
+        .featured-badge { position:absolute; top:-10px; right:1rem; background: var(--accent-gradient); color:#06202a; font-size:0.7rem; font-weight:800; padding:0.25rem 0.7rem; border-radius:999px; }
+        .plan-card h3 { font-size:1.2rem; margin-bottom:0.5rem; }
+        .plan-price { color: var(--primary-color); font-weight:700; margin-bottom:0.8rem; }
+        .plan-card ul { list-style:none; margin-bottom:1rem; }
+        .plan-card li { font-size:0.85rem; color: var(--text-secondary); padding:0.2rem 0; display:flex; gap:0.5rem; align-items:flex-start; }
+        .plan-card li i { color: var(--success-color); margin-top:0.2rem; }
+        .card-actions { display:flex; gap:0.6rem; margin-top:1rem; }
+
+        /* Modal, same pattern as the Claims page */
+        .modal { position:fixed; top:0; left:0; right:0; bottom:0; background: rgba(7,10,18,0.85); backdrop-filter: blur(8px); display:none; align-items:center; justify-content:center; z-index:1000; padding:1.5rem; }
+        .modal.open { display:flex; }
+        .modal-content { width:100%; max-width:520px; background: var(--bg-color); border:1px solid var(--card-border); border-radius:24px; padding:2.5rem; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; }
+        .modal-close { position:absolute; top:1.25rem; right:1.25rem; background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer; }
+        .modal-close:hover { color: var(--primary-color); }
+        .modal-header { margin-bottom:1.5rem; }
+        .modal-header h2 { font-size:1.5rem; font-weight:800; }
+        .modal-header h2 span { color: var(--primary-color); }
+        .modal-header p { color: var(--text-secondary); font-size:0.85rem; margin-top:0.3rem; }
+        .form-group { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1.1rem; }
+        .form-group label { font-size:0.85rem; color:var(--text-secondary); font-weight:600; }
+        .input-control, textarea.input-control { background: rgba(255,255,255,0.04); border:1px solid var(--card-border); border-radius:10px; padding:0.8rem 1rem; color:var(--text-primary); font-size:0.9rem; width:100%; font-family:inherit; }
+        .checkbox-row { display:flex; align-items:center; gap:0.6rem; font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.2rem; }
+        .empty-state { text-align:center; color:var(--text-secondary); padding:3rem 1rem; grid-column: 1 / -1; }
+    </style>
+    <script src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+<header>
+    <div class="nav-container">
+        <a href="/" class="logo"><i class="fa-solid fa-shield-halved"></i> Auto<span>Shield</span></a>
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Admin Dashboard</a>
+    </div>
+</header>
+
+<main>
+    <div class="page-head">
+        <h1 style="font-size:1.8rem; font-weight:800;">Manage Insurance <span>Packages</span></h1>
+        <button type="button" class="btn btn-primary" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Add New Package</button>
+    </div>
+
+    <div class="alert-error" th:if="${error != null}">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span th:text="${error}">Something went wrong.</span>
+    </div>
+
+    <div class="plans-grid">
+        <div th:each="plan : ${plans}" class="plan-card" th:classappend="${plan.featured} ? 'featured' : ''">
+            <span th:if="${plan.featured}" class="featured-badge">FEATURED</span>
+            <h3 th:text="${plan.planName}">Motor Comprehensive</h3>
+            <div class="plan-price" th:text="${'Rs. ' + #numbers.formatDecimal(plan.basePrice, 1, 'COMMA', 2, 'POINT') + ' onwards'}">Rs. 85,000.00 onwards</div>
+            <ul>
+                <li th:each="feature : ${#strings.arraySplit(plan.coverage, ',')}">
+                    <i class="fa-solid fa-circle-check"></i> <span th:text="${#strings.trim(feature)}">Feature</span>
+                </li>
+            </ul>
+            <div class="card-actions">
+                <button type="button" class="btn btn-secondary btn-sm edit-plan-btn"
+                        th:data-id="${plan.id}" th:data-name="${plan.planName}"
+                        th:data-coverage="${plan.coverage}" th:data-price="${plan.basePrice}"
+                        th:data-featured="${plan.featured}">
+                    <i class="fa-solid fa-pen"></i> Edit
+                </button>
+                <form th:action="@{'/admin/packages/' + ${plan.id} + '/delete'}" method="POST"
+                      onsubmit="return confirm('Delete this package? This cannot be undone.');" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${plans == null or #lists.isEmpty(plans)}" class="empty-state">
+            <i class="fa-solid fa-box-open" style="font-size:2.5rem; margin-bottom:1rem; display:block;"></i>
+            No packages yet — add your first one.
+        </div>
+    </div>
+
+    <!-- Create modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="modal-close" onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>Add New <span>Package</span></h2>
+                <p>This will appear immediately on the customer's package selection page.</p>
+            </div>
+            <form th:action="@{/admin/packages/create}" method="POST">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="form-group">
+                    <label for="c-planName">Package Name</label>
+                    <input type="text" id="c-planName" name="planName" class="input-control" placeholder="e.g. Motor Comprehensive" required>
+                </div>
+                <div class="form-group">
+                    <label for="c-coverage">Includes (comma-separated)</label>
+                    <textarea id="c-coverage" name="coverage" class="input-control" rows="3" placeholder="Accident damage, Theft, Fire, Third-party liability" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="c-basePrice">Base Price (Rs.)</label>
+                    <input type="number" id="c-basePrice" name="basePrice" class="input-control" min="0" step="0.01" required>
+                </div>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="c-featured" name="featured" value="true"> Highlight as featured package
+                </label>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.9rem;">
+                    <i class="fa-solid fa-plus"></i> Create Package
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit modal (reused for every plan; fields are filled by JS on open) -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="modal-close" onclick="closeModal('editModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>Edit <span>Package</span></h2>
+                <p>Changes apply immediately to the customer packages page.</p>
+            </div>
+            <form id="editForm" method="POST">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="form-group">
+                    <label for="e-planName">Package Name</label>
+                    <input type="text" id="e-planName" name="planName" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="e-coverage">Includes (comma-separated)</label>
+                    <textarea id="e-coverage" name="coverage" class="input-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="e-basePrice">Base Price (Rs.)</label>
+                    <input type="number" id="e-basePrice" name="basePrice" class="input-control" min="0" step="0.01" required>
+                </div>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="e-featured" name="featured" value="true"> Highlight as featured package
+                </label>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.9rem;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('modal')) event.target.classList.remove('open');
+    });
+
+    function openCreateModal() { openModal('createModal'); }
+
+    function openEditModal(id, planName, coverage, basePrice, featured) {
+        document.getElementById('editForm').action = '/admin/packages/' + id + '/update';
+        document.getElementById('e-planName').value = planName;
+        document.getElementById('e-coverage').value = coverage;
+        document.getElementById('e-basePrice').value = basePrice;
+        document.getElementById('e-featured').checked = (featured === true || featured === 'true');
+        openModal('editModal');
+    }
+
+    // Reading these from data-* attributes (rather than building an inline
+    // onclick string server-side) avoids breaking on package text that
+    // contains quotes or apostrophes, e.g. "Driver's own damage".
+    document.querySelectorAll('.edit-plan-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            openEditModal(
+                btn.dataset.id,
+                btn.dataset.name,
+                btn.dataset.coverage,
+                btn.dataset.price,
+                btn.dataset.featured
+            );
+        });
+    });
+</script>
+</body>
+</html>

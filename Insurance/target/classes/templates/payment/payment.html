@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Premium Payment - Auto Shield</title>
+    <!-- FontAwesome for beautiful modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* Import modern typography */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+        /* Design System Variables */
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-color: #00f2fe;
+            --secondary-color: #4facfe;
+            --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --error-color: #ef4444;
+            --success-color: #10b981;
+            --glow-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+            --glass-blur: blur(16px);
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top, rgba(11, 15, 25, 0.8) 0%, #0b0f19 100%);
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background animated elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(79, 172, 254, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Navigation Bar */
+        header {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.6rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: #0b0f19;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-shadow);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 4px solid transparent;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border-left-color: var(--error-color);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-left-color: var(--success-color);
+        }
+
+        /* Used on this page's bank-transfer notice (was missing) */
+        .alert-error {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 4px solid var(--error-color);
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            line-height: 1.5;
+        }
+
+        /* Input Fields styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+        }
+
+        /* Specific structure for 2-column input row */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        /* Inline validation states */
+        .input-control.is-invalid {
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+        }
+
+        .field-error {
+            display: none;
+            color: var(--error-color);
+            font-size: 0.78rem;
+            margin-top: 0.4rem;
+        }
+    </style>
+
+    <style>
+        .payment-container {
+            max-width: 900px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 3rem;
+        }
+
+        @media (max-width: 800px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .payment-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Interactive Credit Card graphic */
+        .credit-card-graphic {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            aspect-ratio: 1.58/1;
+            padding: 1.8rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.5s ease, opacity 0.3s ease;
+        }
+
+        .credit-card-graphic.is-inactive {
+            opacity: 0.35;
+            filter: grayscale(60%);
+        }
+
+        .credit-card-graphic::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%);
+            transform: rotate(35deg);
+        }
+
+        .card-header-logo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(135deg, #ffc837 0%, #ff8008 100%);
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .card-brand {
+            font-size: 1.25rem;
+            font-style: italic;
+            font-weight: 800;
+            color: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .card-number-display {
+            font-size: 1.35rem;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 2px;
+            margin: 1.5rem 0;
+            word-spacing: 4px;
+        }
+
+        .card-footer-info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-info-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 0.2rem;
+        }
+
+        .card-info-val {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Order summary widget */
+        .order-summary-box {
+            background: rgba(17, 24, 39, 0.92);
+            border: 1px solid rgba(0, 242, 254, 0.28);
+            border-radius: 12px;
+            padding: 1.8rem;
+            height: fit-content;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+        }
+
+        .summary-header {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+            color: #e5e7eb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .summary-item > span:first-child {
+            color: #d1d5db !important;
+            font-weight: 600;
+        }
+
+        .summary-value {
+            color: #ffffff !important;
+            font-weight: 700;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.28);
+            padding-top: 1.2rem;
+            color: #ffffff;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            font-weight: 800;
+        }
+
+        .summary-total > span:last-child {
+            color: #67e8f9;
+            text-align: right;
+            white-space: nowrap;
+        }
+    </style>
+    <script src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header>
+    <div class="nav-container">
+        <a href="/" class="logo">
+            <i class="fa-solid fa-shield-halved"></i> Auto<span>Shield</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li>
+                <form id="logoutForm" th:action="@{/logout}" method="POST" style="display: none;"></form>
+                <a href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();" class="btn btn-secondary">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<!-- Checkout workspace: payment form on the left and live summary on the right. -->
+<main class="payment-container">
+
+    <!-- Left Column: Checkout Card Input Form -->
+    <div class="payment-card">
+        <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem;">Secure <span>Premium Checkout</span></h2>
+
+        <div th:if="${paymentError != null}" class="alert-danger" style="display: flex; margin-bottom: 1.2rem;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span th:text="${paymentError}">Please correct the payment details and try again.</span>
+        </div>
+
+        <!-- Posts the selected payment method and its supporting details to the payment controller. -->
+        <form th:action="@{/payment(policyId=${policyId})}" method="POST" id="paymentForm">
+
+            <!-- Payment method selector; JavaScript switches the visible detail fields. -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label>Select Payment Option</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                    <!-- These buttons switch the active payment workflow without submitting the form. -->
+                    <button type="button" id="btn-credit" class="btn btn-primary" onclick="setPaymentMethod('Credit Card')" style="padding: 0.8rem; font-weight: 700; width: 100%; font-size: 0.9rem;">
+                        <i class="fa-solid fa-credit-card"></i> Credit Card
+                    </button>
+                    <button type="button" id="btn-debit" class="btn btn-secondary" onclick="setPaymentMethod('Debit Card')" style="padding: 0.8rem; font-weight: 700; width: 100%; font-size: 0.9rem;">
+                        <i class="fa-solid fa-credit-card"></i> Debit Card
+                    </button>
+                    <button type="button" id="btn-bank" class="btn btn-secondary" onclick="setPaymentMethod('Bank Transfer')" style="padding: 0.8rem; font-weight: 700; width: 100%; font-size: 0.9rem;">
+                        <i class="fa-solid fa-building-columns"></i> Bank Transfer
+                    </button>
+                </div>
+                <input type="hidden" name="paymentMethod" id="paymentMethod" value="Credit Card">
+            </div>
+
+            <!-- Card fields shown for Credit Card and Debit Card payments. -->
+            <div id="cardFields">
+
+                <!-- Cardholder Name -->
+                <div class="form-group">
+                    <label for="cardName">Cardholder Name</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="cardName" name="cardName" class="input-control" placeholder="e.g. John Doe" maxlength="100" autocomplete="cc-name" oninput="handleCardNameInput(this)">
+                    </div>
+                    <span class="field-error" id="cardNameError">Name can only contain letters, spaces, apostrophes and hyphens — no numbers.</span>
+                </div>
+
+                <!-- Card Number -->
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-credit-card"></i>
+
+
+
+
+
+
+
+                        <input type="text" id="cardNumber" name="cardNumber" class="input-control" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatAndShowCard(this)">
+                    </div>
+                </div>
+
+                <!-- Expiration and CVV -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cardExpiry">Expiration Date</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-calendar"></i>
+
+
+
+
+
+
+
+                            <input type="text" id="cardExpiry" name="cardExpiry" class="input-control" placeholder="MM/YY" maxlength="5" inputmode="numeric" autocomplete="cc-exp" oninput="formatExpiry(this)" onblur="validateExpiryField()">
+                        </div>
+                        <span class="field-error" id="cardExpiryError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardCvv">CVV Code</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="cardCvv" name="cardCvv" class="input-control" placeholder="123" maxlength="3" inputmode="numeric" autocomplete="cc-csc" oninput="formatCvv(this)">
+                        </div>
+                        <span class="field-error" id="cardCvvError"></span>
+                    </div>
+                </div>
+            </div> <!-- /cardFields -->
+
+            <!-- Bank transfer fields shown only when Bank Transfer is selected. -->
+            <div id="bankFields" style="display: none;">
+                <div class="alert-error" style="display: flex; background: rgba(0, 242, 254, 0.08); border-color: rgba(0, 242, 254, 0.2); color: var(--primary-color); margin-bottom: 1.2rem;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Transfer the premium to <strong>Auto Shield Insurance PLC — Account 8801 2345 6789, Sampath Bank</strong>, then upload your slip below. We'll verify it and confirm your policy within 1 business day.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionReference">Bank Transaction Reference / Code</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-hashtag"></i>
+
+
+
+
+
+
+
+                        <input type="text" id="transactionReference" name="transactionReference" class="input-control"
+                               placeholder="e.g. ABC00123456789" maxlength="14" pattern="[A-Z]{3}[0-9]{11}"
+                               title="Enter 3 uppercase English letters followed by exactly 11 numbers."
+                               autocomplete="off" oninput="formatTransactionReference(this)">
+                    </div>
+                    <span class="field-error" id="transactionReferenceError">Use 3 uppercase English letters followed by exactly 11 numbers.</span>
+                </div>
+
+
+
+
+
+
+
+
+                <div class="form-group" style="margin-top: 1.2rem;">
+                    <label for="paymentSlipFile">Upload Payment Slip / Receipt</label>
+                    <input type="file" id="paymentSlipFile" class="input-control" accept="image/*,application/pdf">
+                    <input type="hidden" id="paymentSlipData" name="paymentSlipData">
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.4rem;">A photo or scan of your bank transfer receipt/slip.</p>
+                </div>
+            </div>
+
+            <!-- Submit the payment or bank-transfer verification request, then return to the dashboard. -->
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; flex-direction: column;">
+                <button type="submit" id="submitBtn" class="btn btn-primary" style="padding: 0.95rem; font-size: 1.05rem; font-weight: 700; width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-shield-halved"></i> Pay & Print Receipt
+                </button>
+                <a href="/dashboard" class="btn btn-secondary" style="padding: 0.9rem; font-size: 0.95rem; text-align: center;">
+                    Cancel & Return to Dashboard
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Right Column: card preview and policy payment summary. -->
+    <div style="display: flex; flex-direction: column; justify-content: space-between;">
+
+
+
+
+        
+        <!-- Live card preview synchronized with the card inputs below. -->
+        <div id="cardGraphic" class="credit-card-graphic">
+            <div class="card-header-logo">
+                <div class="card-chip"></div>
+                <div class="card-brand" id="cardBrandDisplay">CREDIT</div>
+            </div>
+            <div class="card-number-display" id="cardNumberDisplay">•••• •••• •••• ••••</div>
+            <div class="card-footer-info">
+                <div>
+                    <div class="card-info-label">Card Holder</div>
+                    <div class="card-info-val" id="cardHolderDisplay">YOUR NAME HERE</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="card-info-label">Expires</div>
+                    <div class="card-info-val" id="cardExpiryDisplay">MM/YY</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <!-- Shows the policy and premium amount being paid. -->
+        <div class="order-summary-box">
+            <div class="summary-header">
+                <i class="fa-solid fa-receipt" style="color: var(--primary-color);"></i> Premium Calculation Summary
+            </div>
+            <div class="summary-item">
+                <span style="color: var(--text-secondary);">Insurance Tier / Scheme</span>
+                <span class="summary-value" th:text="${currentPolicy.plan.planName}">Motor Comprehensive</span>
+            </div>
+            <div class="summary-item">
+                <span style="color: var(--text-secondary);">Vehicle Category</span>
+                <span class="summary-value" th:text="${currentVehicle.vehicleCategory}">Sedan</span>
+            </div>
+            <div class="summary-item">
+                <span style="color: var(--text-secondary);">License Plate Number</span>
+                <span class="summary-value" th:text="${currentVehicle.vehicleNumber}">WP CAS-1234</span>
+            </div>
+            <div class="summary-item">
+                <span style="color: var(--text-secondary);">Billing cycle</span>
+                <span class="summary-value">Annual (1 Year Validity)</span>
+            </div>
+
+
+
+
+
+
+
+            <div class="summary-total">
+                <span>Total Premium (Rs.)</span>
+                <span th:text="${currentPolicy.premium != null ? 'Rs. ' + #numbers.formatDecimal(currentPolicy.premium, 1, 'COMMA', 2, 'POINT') : 'Rs. 85,000.00'}">Rs. 85,000.00</span>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Footer -->
+<footer style="text-align: center; margin-top: 5rem; padding: 2rem 0; border-top: 1px solid var(--card-border);">
+    <p>&copy; 2026 Auto Shield. All rights reserved.</p>
+</footer>
+
+<!-- Interactive payment behavior: method switching, validation, file compression, and card preview. -->
+<script>
+    // Switches between card and bank-transfer workflows and updates required fields.
+    function setPaymentMethod(method) {
+        document.getElementById('paymentMethod').value = method;
+
+        const btnCredit = document.getElementById('btn-credit');
+        const btnDebit = document.getElementById('btn-debit');
+        const btnBank = document.getElementById('btn-bank');
+        const brandDisplay = document.getElementById('cardBrandDisplay');
+        const cardGraphic = document.getElementById('cardGraphic');
+        const cardFields = document.getElementById('cardFields');
+        const bankFields = document.getElementById('bankFields');
+        const submitBtn = document.getElementById('submitBtn');
+
+        const cardInputs = ['cardName', 'cardNumber', 'cardExpiry', 'cardCvv'].map(id => document.getElementById(id));
+        const slipHiddenInput = document.getElementById('paymentSlipData');
+
+
+
+
+
+
+
+
+        btnCredit.className = method === 'Credit Card' ? 'btn btn-primary' : 'btn btn-secondary';
+        btnDebit.className = method === 'Debit Card' ? 'btn btn-primary' : 'btn btn-secondary';
+        btnBank.className = method === 'Bank Transfer' ? 'btn btn-primary' : 'btn btn-secondary';
+
+        // Clear any validation state left over from before the switch
+        ['cardName', 'cardExpiry'].forEach(id => {
+            document.getElementById(id).classList.remove('is-invalid');
+        });
+        ['cardNameError', 'cardExpiryError'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+
+        if (method === 'Bank Transfer') {
+            cardFields.style.display = 'none';
+            bankFields.style.display = 'block';
+            cardInputs.forEach(el => { el.required = false; });
+            // The file itself isn't a form field the server reads directly —
+            // paymentSlipData (populated by handleSlipFile below) is what's
+            // actually required before submitting.
+            slipHiddenInput.required = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit for Verification';
+
+            // The card graphic doesn't apply to a bank transfer, so dim it
+            // instead of leaving a stale Credit/Debit style showing.
+            cardGraphic.classList.add('is-inactive');
+        } else {
+            cardFields.style.display = 'block';
+            bankFields.style.display = 'none';
+            cardInputs.forEach(el => { el.required = true; });
+            slipHiddenInput.required = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Pay & Print Receipt';
+
+            cardGraphic.classList.remove('is-inactive');
+
+            if (method === 'Credit Card') {
+                brandDisplay.innerText = "CREDIT";
+                cardGraphic.style.background = "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)";
+            } else {
+                brandDisplay.innerText = "DEBIT";
+                cardGraphic.style.background = "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)";
+            }
+        }
+    }
+
+    // Same compression approach used on the vehicle-photo upload: resizes and
+    // re-compresses the slip so it stays well under the request-size limit,
+    // regardless of how large the original photo/scan is.
+    // Converts uploaded slips to a request-safe data URL before form submission.
+    document.getElementById('paymentSlipFile').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const hiddenInput = document.getElementById('paymentSlipData');
+
+        if (file.type === 'application/pdf') {
+            // PDFs are already compact enough to store as-is.
+            const reader = new FileReader();
+            reader.onloadend = () => { hiddenInput.value = reader.result; };
+            reader.readAsDataURL(file);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const maxDim = 1200;
+                let { width, height } = img;
+                if (width > height && width > maxDim) {
+                    height = Math.round(height * (maxDim / width));
+                    width = maxDim;
+                } else if (height > maxDim) {
+                    width = Math.round(width * (maxDim / height));
+                    height = maxDim;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                hiddenInput.value = canvas.toDataURL('image/jpeg', 0.75);
+            };
+            img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Mirrors the cardholder name into the visual card preview.
+    function updateCardName(val) {
+        const display = document.getElementById('cardHolderDisplay');
+        display.innerText = val.trim().toUpperCase() || "YOUR NAME HERE";
+    }
+
+
+
+
+
+
+
+
+    // Cardholder name must be letters only — strip digits/symbols as the
+    // person types rather than waiting until they try to submit.
+    function handleCardNameInput(input) {
+        const cleaned = input.value.replace(/[^A-Za-z\s'-]/g, '');
+        if (cleaned !== input.value) {
+            input.value = cleaned;
+        }
+
+        const errorEl = document.getElementById('cardNameError');
+        if (input.value.trim().length === 0) {
+            errorEl.style.display = 'none';
+            input.classList.remove('is-invalid');
+        } else {
+            errorEl.style.display = 'none';
+            input.classList.remove('is-invalid');
+        }
+
+        updateCardName(input.value);
+    }
+
+
+
+
+
+
+
+
+    // Checks the MM/YY field against today's date. Returns true only once a
+    // complete, non-expired date is present; leaves the field alone (no
+    // error) while the person is still typing it.
+    function validateExpiryField() {
+        const input = document.getElementById('cardExpiry');
+        const errorEl = document.getElementById('cardExpiryError');
+        const val = input.value;
+
+        if (val.length < 5) {
+            errorEl.style.display = 'none';
+            input.classList.remove('is-invalid');
+            return false;
+        }
+
+        const [monthStr, yearStr] = val.split('/');
+        const month = parseInt(monthStr, 10);
+        const year = 2000 + parseInt(yearStr, 10);
+
+        let message = '';
+        if (isNaN(month) || month < 1 || month > 12) {
+            message = 'Enter a valid month (01–12).';
+        } else {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1; // JS months are 0-indexed
+            // A card is valid through the last day of its expiry month.
+            if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                message = 'This card has expired. Please use a card with a valid expiration date.';
+            }
+        }
+
+        if (message) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            input.classList.add('is-invalid');
+            return false;
+        }
+
+        errorEl.style.display = 'none';
+        input.classList.remove('is-invalid');
+        return true;
+    }
+
+    // Normalizes the card number into four-digit groups and masks the preview.
+    function formatAndShowCard(input) {
+        // Remove non-digit characters
+        let val = input.value.replace(/\D/g, '');
+
+        // Format to 0000 0000 0000 0000
+        let formatted = val.match(/.{1,4}/g);
+        if (formatted) {
+            input.value = formatted.join(' ');
+        } else {
+            input.value = '';
+        }
+
+        // Sync visual display
+        const display = document.getElementById('cardNumberDisplay');
+        let plainText = input.value;
+        if (plainText.length < 19) {
+            // Pad with dots
+            let dots = "•••• •••• •••• ••••";
+            plainText = plainText + dots.substring(plainText.length);
+        }
+        display.innerText = plainText;
+    }
+
+    function formatExpiry(input) {
+        // Keep expiry input in MM/YY format and validate it as the customer types.
+        let val = input.value.replace(/\D/g, '');
+        if (val.length >= 2) {
+            input.value = val.substring(0,2) + '/' + val.substring(2,4);
+        } else {
+            input.value = val;
+        }
+
+        const display = document.getElementById('cardExpiryDisplay');
+        display.innerText = input.value || "MM/YY";
+
+        validateExpiryField();
+    }
+
+
+
+
+
+
+
+
+    function formatCvv(input) {
+        // CVV accepts exactly three numeric characters.
+        input.value = input.value.replace(/\D/g, '').substring(0, 3);
+        const errorEl = document.getElementById('cardCvvError');
+        if (input.value.length === 0 || input.value.length === 3) {
+            errorEl.style.display = 'none';
+            input.classList.remove('is-invalid');
+        }
+
+        function formatTransactionReference(input) {
+            // Bank references must contain three uppercase letters followed by
+            // eleven digits before the transfer can be submitted.
+            const rawValue = input.value;
+            let formattedValue = '';
+            for (let index = 0; index < Math.min(rawValue.length, 14); index++) {
+                const character = rawValue[index];
+                const validCharacter = index < 3
+                        ? /^[A-Z]$/.test(character)
+                        : /^\d$/.test(character);
+                if (!validCharacter) {
+                    break;
+                }
+                formattedValue += character;
+            }
+            input.value = formattedValue;
+            const errorEl = document.getElementById('transactionReferenceError');
+            if (input.value.length === 0 || /^[A-Z]{3}[0-9]{11}$/.test(input.value)) {
+                errorEl.style.display = 'none';
+                input.classList.remove('is-invalid');
+            } else {
+                errorEl.style.display = 'block';
+                input.classList.add('is-invalid');
+            }
+        }
+    }
+
+    // Set the correct required fields and panel visibility for the default
+    // method (Credit Card) as soon as the page loads.
+    setPaymentMethod('Credit Card');
+
+    // Final check on submit — catches anything not caught live (e.g. a name
+    // pasted in with a trailing space, or an expiry left half-typed) so an
+    // expired card or a numeric name can never actually be submitted.
+    document.getElementById('paymentForm').addEventListener('submit', function (e) {
+        // Final client-side guard prevents incomplete card or bank-transfer
+        // details from being sent to the server.
+        const method = document.getElementById('paymentMethod').value;
+        if (method === 'Bank Transfer') {
+            const referenceInput = document.getElementById('transactionReference');
+            const referenceErrorEl = document.getElementById('transactionReferenceError');
+            if (!/^[A-Z]{3}[0-9]{11}$/.test(referenceInput.value)) {
+                referenceErrorEl.textContent = 'Enter 3 uppercase English letters followed by exactly 11 numbers.';
+                referenceErrorEl.style.display = 'block';
+                referenceInput.classList.add('is-invalid');
+                referenceInput.focus();
+                e.preventDefault();
+            }
+            return; // card checks below don't apply to bank transfers
+        }
+
+        let valid = true;
+        const namePattern = /^[A-Za-z\s'-]+$/;
+
+        const nameInput = document.getElementById('cardName');
+        const nameErrorEl = document.getElementById('cardNameError');
+        if (!nameInput.value.trim() || !namePattern.test(nameInput.value)) {
+            nameErrorEl.textContent = 'Please enter the cardholder name using letters only.';
+            nameErrorEl.style.display = 'block';
+            nameInput.classList.add('is-invalid');
+            valid = false;
+        }
+
+        const cvvInput = document.getElementById('cardCvv');
+        const cvvErrorEl = document.getElementById('cardCvvError');
+        if (!/^\d{3}$/.test(cvvInput.value)) {
+            cvvErrorEl.textContent = 'Please enter a 3-digit CVV code.';
+            cvvErrorEl.style.display = 'block';
+            cvvInput.classList.add('is-invalid');
+            valid = false;
+        } else {
+            cvvErrorEl.style.display = 'none';
+            cvvInput.classList.remove('is-invalid');
+        }
+
+        const expiryInput = document.getElementById('cardExpiry');
+        const expiryErrorEl = document.getElementById('cardExpiryError');
+        if (expiryInput.value.length < 5) {
+            expiryErrorEl.textContent = 'Please enter the full expiration date (MM/YY).';
+            expiryErrorEl.style.display = 'block';
+            expiryInput.classList.add('is-invalid');
+            valid = false;
+        } else if (!validateExpiryField()) {
+            valid = false; // validateExpiryField already set the error message
+        }
+
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+</html>

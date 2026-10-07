@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History - Auto Shield</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <script th:src="@{/js/theme.js}"></script>
+</head>
+<body>
+<header>
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo"><i class="fa-solid fa-shield-halved"></i> Auto<span>Shield</span></a>
+        <ul class="nav-links">
+            <li><a th:href="@{/finance/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/finance/payments}">Payment Records</a></li>
+            <li><a th:href="@{/finance/payment-history}" class="active">Payment History</a></li>
+            <li>
+                <form id="logoutForm" th:action="@{/logout}" method="POST" style="display: none;"></form>
+                <a href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();" class="btn btn-secondary">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<main class="dashboard-container">
+    <!-- Read-only audit view of every payment processed by customers. -->
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.3rem;">Payment <span>History</span></h1>
+        <p style="color: var(--text-secondary);">Complete history of every payment submitted by customers.</p>
+    </div>
+
+    <!-- The table preserves the chronological payment record for Finance review. -->
+    <div class="dashboard-card" style="width: 100%; overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>Receipt No.</th>
+                <th>Customer</th>
+                <th>Policy No.</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Paid At</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${payments}">
+                <td th:text="${p.receiptNumber}" style="font-weight: 600;">AS-RCP-2026-100000</td>
+                <td th:text="${p.policy.vehicle.owner.fullName}">John Doe</td>
+                <td th:text="${p.policy.policyNumber}">AS-1234567-GP</td>
+                <td th:text="${'Rs. ' + #numbers.formatDecimal(p.amount, 1, 'COMMA', 2, 'POINT')}">Rs. 85,000.00</td>
+                <td th:text="${p.paymentMethod}">Credit Card</td>
+                <td th:text="${p.paidAt}">Aug 01, 2026</td>
+                <td><span class="badge-status badge-paid" th:text="${p.status}">COMPLETED</span></td>
+            </tr>
+            <tr th:if="${payments == null or #lists.isEmpty(payments)}">
+                <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No payment history available.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2026 Auto Shield. All rights reserved. Finance Officer authorization required.</p>
+</footer>
+</body>
+</html>

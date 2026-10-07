@@ -1,0 +1,13 @@
+How to apply the custom generated wallpaper offline:
+
+1. Locate the generated image in your AI artifacts folder:
+   C:\Users\sheha\.gemini\antigravity\brain\a8a70e6c-6cc1-414c-a889-a5892a918b94\liquid_glass_car_1785757397513.png
+
+2. Copy this file and paste it into this directory:
+   c:\Users\sheha\OneDrive\Desktop\Insurance\src\main\resources\static\images\
+
+3. Rename the file to:
+   vehicle_wallpaper.png
+
+The website will automatically load your custom generated liquid-glass car wallpaper as the primary background! 
+(Currently, it uses an online premium cyber car stock image fallback so it works immediately.)

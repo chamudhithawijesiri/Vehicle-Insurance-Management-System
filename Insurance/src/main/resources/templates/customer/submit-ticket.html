@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support - Auto Shield</title>
+    <link rel="stylesheet" th:href="@{/css/fontawesome.min.css}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-color: #00f2fe;
+            --secondary-color: #4facfe;
+            --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --error-color: #ef4444;
+            --success-color: #10b981;
+            --glow-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top, rgba(11, 15, 25, 0.8) 0%, #0b0f19 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex; justify-content: center; padding: 1.2rem 2rem;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 15, 25, 0.6); backdrop-filter: blur(12px);
+            position: sticky; top: 0; z-index: 10;
+        }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); text-decoration: none; }
+        .logo span { color: var(--primary-color); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-weight: 500; }
+        .nav-links a:hover { color: var(--primary-color); }
+        .btn { border: none; border-radius: 10px; padding: 0.6rem 1.2rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary { background: var(--accent-gradient); color: #06202a; box-shadow: var(--glow-shadow); }
+        .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-primary); border: 1px solid var(--card-border); }
+
+        main.details-container { display: flex; justify-content: center; padding: 3rem 1.5rem; }
+        .details-card {
+            width: 100%; max-width: 720px; background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 2.5rem; backdrop-filter: blur(16px);
+        }
+        h1 span { color: var(--primary-color); }
+
+        .form-section-title { font-weight: 700; margin: 1.5rem 0 1rem; color: var(--secondary-color); display: flex; gap: 0.5rem; align-items: center; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+        .input-control, .select-control, textarea.input-control {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px;
+            padding: 0.85rem 1rem; color: var(--text-primary); font-size: 0.95rem; width: 100%;
+        }
+        .input-control:focus, .select-control:focus { outline: none; border-color: var(--primary-color); }
+        /* The dropdown popup itself is rendered by the browser with a white
+           background, so force dark text on the options or they inherit the
+           light theme color and become unreadable. */
+        .select-control option { color: #111827; background-color: #ffffff; }
+        .alert-error {
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--error-color);
+            padding: 0.9rem 1.1rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; gap: 0.6rem; align-items: center;
+        }
+    </style>
+    <script src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <a href="/" class="logo"><i class="fa-solid fa-shield-halved"></i> Auto<span>Shield</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/support/tickets">My Support Tickets</a></li>
+            <li>
+                <form id="logoutForm" th:action="@{/logout}" method="POST" style="display: none;"></form>
+                <a href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();" class="btn btn-secondary">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<main class="details-container">
+    <div class="details-card">
+        <div style="text-align:center; margin-bottom:2rem;">
+            <h1 style="font-size:2rem; font-weight:800; margin-bottom:0.5rem;">Contact <span>Support</span></h1>
+            <p style="color: var(--text-secondary);">Tell us what's going on and we'll get back to you with a ticket you can track.</p>
+        </div>
+
+        <div class="alert-error" th:if="${error != null}">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span th:text="${error}">Something went wrong.</span>
+        </div>
+
+        <form th:action="@{/support/new}" method="POST">
+            <div class="form-section-title"><i class="fa-solid fa-headset"></i> Your Request</div>
+
+            <div class="form-group" style="margin-bottom:1.2rem;">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" name="subject" class="input-control" placeholder="Short summary of your issue" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.2rem;">
+                <label for="category">Category</label>
+                <select id="category" name="category" class="select-control" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option th:each="c : ${categories}" th:value="${c}" th:text="${c}">GENERAL</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.2rem;">
+                <label for="referenceInfo">Related Policy / Claim / Payment No. (optional)</label>
+                <input type="text" id="referenceInfo" name="referenceInfo" class="input-control" placeholder="e.g. AS-1234567-GP or CLM-1234567-AS">
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.5rem;">
+                <label for="description">Describe your issue</label>
+                <textarea id="description" name="description" class="input-control" rows="6" placeholder="Give us as much detail as you can." required style="resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:1rem; font-size:1rem;">
+                <i class="fa-solid fa-paper-plane"></i> Submit Request
+            </button>
+        </form>
+    </div>
+</main>
+
+</body>
+</html>

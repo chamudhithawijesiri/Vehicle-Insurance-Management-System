@@ -1,0 +1,124 @@
+[data-theme="light"] {
+    --bg-color: #eef5f7;
+    --card-bg: rgba(255, 255, 255, 0.86);
+    --card-border: rgba(15, 57, 69, 0.14);
+    --text-primary: #12313a;
+    --text-secondary: #55717a;
+    --primary-color: #087f8c;
+    --secondary-color: #1d9aaa;
+    --accent-gradient: linear-gradient(135deg, #087f8c 0%, #36b5c2 100%);
+    --glow-shadow: 0 0 20px rgba(8, 127, 140, 0.2);
+}
+
+[data-theme="light"] body {
+    background-color: #eef5f7 !important;
+    background-image: radial-gradient(circle at top, rgba(255, 255, 255, 0.9) 0%, #dcebed 100%) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] header,
+[data-theme="light"] .sidebar {
+    background: rgba(255, 255, 255, 0.84) !important;
+}
+
+[data-theme="light"] footer {
+    background: rgba(255, 255, 255, 0.68) !important;
+}
+
+[data-theme="light"] .form-card,
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .feature-card,
+[data-theme="light"] .shield-card,
+[data-theme="light"] .content-card,
+[data-theme="light"] .table-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .profile-card,
+[data-theme="light"] .ticket-card,
+[data-theme="light"] .claim-card,
+[data-theme="light"] .policy-card {
+    background: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .input-control,
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background: rgba(255, 255, 255, 0.78) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--card-border) !important;
+}
+
+[data-theme="light"] .input-control:focus,
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .text-muted,
+[data-theme="light"] .form-group label,
+[data-theme="light"] .detail-label,
+[data-theme="light"] .form-header p,
+[data-theme="light"] .hero-content p,
+[data-theme="light"] .feature-card p {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] table th,
+[data-theme="light"] table td {
+    color: var(--text-primary) !important;
+    border-color: var(--card-border) !important;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: rgba(8, 127, 140, 0.08) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .package-card.selected {
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .package-card.selected .pkg-details {
+    border-top-color: var(--card-border) !important;
+}
+
+[data-theme="light"] .dropzone-area {
+    background: rgba(255, 255, 255, 0.82) !important;
+    border-color: rgba(8, 127, 140, 0.35) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .dropzone-area .dropzone-icon {
+    color: var(--primary-color) !important;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+    background: rgba(34, 211, 238, 0.14);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+[data-theme="light"] .theme-toggle {
+    background: rgba(8, 127, 140, 0.08);
+}
